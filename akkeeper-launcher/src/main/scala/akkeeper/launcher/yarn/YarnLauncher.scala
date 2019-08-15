@@ -48,7 +48,8 @@ final class YarnLauncher(yarnConf: YarnConfiguration,
       yarnClient.start()
       f(yarnClient)
     } finally {
-      yarnClient.stop()
+      logger.debug("ZK: Stopping YARN client")
+//      yarnClient.stop()
     }
   }
 
@@ -58,7 +59,9 @@ final class YarnLauncher(yarnConf: YarnConfiguration,
                                  pollInterval: Long): Future[String] = {
     @tailrec
     def retry(): String = {
+      logger.debug("ZK: in retry")
       val appReport = yarnClient.getApplicationReport(appId)
+      logger.debug("ZK: got application report")
       val state = appReport.getYarnApplicationState
       state match {
         case s @ (YarnApplicationState.SUBMITTED | YarnApplicationState.ACCEPTED) =>
@@ -74,6 +77,7 @@ final class YarnLauncher(yarnConf: YarnConfiguration,
       }
     }
     Future {
+      logger.debug("ZK: before retrieveMasterHost::retry() future")
       retry()
     }
   }
@@ -189,13 +193,16 @@ final class YarnLauncher(yarnConf: YarnConfiguration,
     logger.info(s"Launched Akkeeper Cluster $appId")
 
     val masterHostFuture = retrieveMasterHost(yarnClient, config, appId, args.pollInterval)
+    logger.debug("ZK: after service master host")
     masterHostFuture.map(LaunchResult(appId.toString, _))
   }
 
   override def launch(config: Config, args: LaunchArguments): Future[LaunchResult] = {
     Future {
       withYarnClient { yarnClient =>
-        launchWithClient(yarnClient, config, args)
+        val f = launchWithClient(yarnClient, config, args)
+        logger.debug("ZK: after launchWithClient")
+        f
       }
     }.flatMap(identity) // There is no Future.flatten method in Scala 2.11.
   }
