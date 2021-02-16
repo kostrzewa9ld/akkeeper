@@ -16,9 +16,9 @@
 
 val AkkaVersion = "2.5.14"
 val AkkaHttpVersion = "10.1.3"
-val CuratorVersion = "2.7.1"
+val CuratorVersion = "2.13.0" // not sure if update here is needed
 val SprayJsonVersion = "1.3.4"
-val HadoopVersion = "2.8.4"
+val HadoopVersion = "3.2.2"
 val ScalaTestVersion = "3.0.5"
 val ScalamockVersion = "3.4.2"
 val Slf4jVersion = "1.7.19"
@@ -30,7 +30,8 @@ val HadoopDependencies = Seq(
   "org.apache.hadoop" % "hadoop-hdfs" % HadoopVersion % "provided",
   "org.apache.hadoop" % "hadoop-yarn-common" % HadoopVersion % "provided",
   "org.apache.hadoop" % "hadoop-yarn-client" % HadoopVersion % "provided",
-  "org.apache.hadoop" % "hadoop-mapreduce-client-core" % HadoopVersion % "provided"
+  "org.apache.hadoop" % "hadoop-mapreduce-client-core" % HadoopVersion % "provided",
+  "com.google.guava" % "guava" % "20.0"
 )
 
 val TestDependencies = Seq(
@@ -62,7 +63,9 @@ val CommonSettings = Seq(
     "-language:implicitConversions",
     "-language:higherKinds"),
 
-  parallelExecution in Test := false
+  parallelExecution in Test := false,
+
+  dependencyOverrides += "com.google.guava" %% "guava" % "20.0"
 )
 
 val PublishSettings = Seq(
